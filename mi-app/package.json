@@ -1,5 +1,18 @@
 {
+  "name": "mi-app",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "start": "nodemon ./mi-app/server.js"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "module",
   "dependencies": {
-    "node-fetch": "^3.3.2"
+    "dgram": "^1.0.1",
+    "express": "^5.2.1",
+    "nodemon": "^3.1.11"
   }
 }
