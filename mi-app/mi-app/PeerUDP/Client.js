@@ -33,7 +33,7 @@ export function FetchData(peerName){
 }
 
 // --- Hole Punching ---
-export function StartPunch(){
+function StartPunch(){
     punched = false;
     punchAttempts = 0;
 
@@ -62,7 +62,7 @@ export function HandleMessages(){
         if(text === "PUNCH_ACK"){
             punched = true;
             console.log("Conexión UDP establecida");
-                ConnectTCP(TCP_PORT,peerIp);
-            }
+            ConnectTCP(TCP_PORT,peerIp);
+        }
     });
 }
