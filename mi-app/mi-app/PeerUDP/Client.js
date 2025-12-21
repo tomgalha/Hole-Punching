@@ -56,13 +56,21 @@ export function HandleMessages(){
 
         if(text === "PUNCH"){
             socket.send(Buffer.from("PUNCH_ACK"), rinfo.port, rinfo.address);
-            StartTCPServer(TCP_PORT);
+           // StartTCPServer(TCP_PORT);
         }
 
         if(text === "PUNCH_ACK"){
-            punched = true;
-            console.log("Conexión UDP establecida");
-            ConnectTCP(TCP_PORT,peerIp);
+            if(punched) return;
+
+            punched=true;
+            console.log("UDP hole abierto");
+
+            ConnectTCP(TCP_PORT, peerIp);
+
+          //  punched = true;
+            //console.log("UDP hole abierto");
+            //StartTCPServer(TCP_PORT);
+            //ConnectTCP(TCP_PORT,peerIp);
         }
     });
 }

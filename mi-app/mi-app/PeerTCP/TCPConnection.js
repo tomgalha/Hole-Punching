@@ -4,82 +4,126 @@ import { EventEmitter } from "events";
 
 export const peerEvents = new EventEmitter();
 
-// --- TCP como requester ---
-export function ConnectTCP(PORT, peerIp){
-        const socketTCP = net.connect(PORT, peerIp, () => {
-        console.log("Conectado por TCP al owner");
+let inboundSocket = null;
+let outboundSocket = null;
+let activeSocket = null;
 
-        console.log("Archivos del owner: ");
-        
-        socketTCP.write("LIST\n")
+let role = null;
 
-        socketTCP.on("data",data => {
-            if(data === "ENDLIST"){ peerEvents.emit("LIST_READY")}else {
-                console.log(data.toString());
+function trySelectActive(socket){
+    if(activeSocket) return;
+
+    activeSocket = socket;
+    console.log("Socket elegido");
+
+    // Cerrar el otro si existe
+    if(socket !== inboundSocket && inboundSocket){
+        inboundSocket.end();
+        inboundSocket=null;
+    }
+    if(socket !== outboundSocket && outboundSocket){
+        outboundSocket.end();
+        outboundSocket = null;
+    }
+
+    if(role === "REQUESTER"){
+        socket.write("LIST\n");
+    }
+}
+
+function handleCommands(data){
+    const msg = data.trim();
+
+    if(msg === "LIST"){
+        console.log("Quiere ver los archivos")
+        sendList(activeSocket);
+    }
+    else if(msg.startsWith("DOWNLOADFILE")){
+        const filename = msg.split(" ")[1];
+        console.log("El archivo que quiere descargar es: " + filename);
+    }else if(msg.includes("END_LIST")) peerEvents.emit("LIST_READY");
+    else{
+        console.log(msg);
+    }
+}
+
+function sendList(socket){
+    const basePath = "C:/Users/totog/Music/Music/Dad's rock";
+    const files = fs.readdirSync(basePath);
+
+    files.forEach(f =>{
+        const fullPath = `${basePath}/${f}`;
+        const stats = fs.statSync(fullPath);
+
+        socket.write(`${f}\n`);
+        socket.write("File size: " + (stats.size / (1024 * 1024)).toFixed(2)  +" MB"+ "\n");
+    });
+
+    socket.write("END_LIST");
+}
+
+export function StartTCPServer(TCP_PORT){
+    const server = net.createServer(socket =>{
+        console.log("Inbound TCP aceptado");
+        role = "OWNER";
+
+        socket.setKeepAlive(true,10000);
+        socket.setEncoding('utf-8');
+
+        inboundSocket = socket;
+
+        socket.once('data', data =>{
+            console.log(data);
+            if(!data.startsWith("HELLO")){
+                socket.end();
+                return;
             }
-          //  peerEvents.on("")
+
+            socket.write("HELLO OWNER\n");
+            trySelectActive(socket);
+            socket.on("data", handleCommands);
+        });
+
+        socket.on('close', ()=>{
+            if(socket === inboundSocket) inboundSocket=null;
+            if(socket === activeSocket) activeSocket = null;
         });
     });
+
+    server.listen(TCP_PORT, ()=>{
+        console.log("TCP escuchando en: ", TCP_PORT);
+    })
 }
 
-export function RequestFile(filename){
-    socketTCP.write(`DOWNLOADFILE ${filename}`)
-} 
 
-// --- TCP como owner ---
-export function StartTCPServer(TCP_PORT){
-    const server = net.createServer(socket => {
-        console.log("Cliente TCP conectado (owner)");
-        socket.on("data", data =>{
+export function ConnectTCP(PORT, peerIp){
+    const socket = net.connect(PORT,peerIp, ()=>{
+        role="REQUESTER"
+        console.log("Outbound TCP conectado");
 
+        socket.setKeepAlive(true,10000);
+        socket.setEncoding('utf-8');
 
-            const msg = data.toString().trim();
-
-            const [command, ...rest] = msg.split(" ");
-            const filename = rest.join(" "); 
-
-            if(command === "LIST"){
-            //Listar archivos
-                const BasePath = "C:/Users/totog/Music/Music/Dad's rock";
-                const files = fs.readdirSync(BasePath);
-
-                let fileNumber = 1;
-
-                files.forEach(f => {
-                    const fullPath = `${BasePath}/${f}`;
-                    const stats = fs.statSync(fullPath);
-
-                    socket.write(fileNumber + ":" + f + "\n");
-                    socket.write("File size: " + (stats.size / (1024 * 1024)).toFixed(2)  +" MB"+ "\n");
-                    fileNumber++;
-                });
-
-                socket.write("ENDLIST");
-            }
-            if(command==="DOWNLOADFILE"){
-                const song = filename.toLowerCase().replaceAll(" ", "");
-                console.log("El requester quiere la cancion: "+ song);
-                DownloadFile(song, BasePath, socket);
-            }
-            if(msg ==="DOWNLOADFOLDER"){
-                console.log("El cliente quiere toda la carpeta");
-            }
-        })
-
-       // socket.end()
+        outboundSocket = socket;
+        socket.write("HELLO REQUESTER\n");
     });
 
-    server.listen(TCP_PORT, () => console.log("TCP escuchando en puerto", TCP_PORT));
-}
+    socket.once('data', data =>{
+        console.log(data);
+        if(!data.startsWith("HELLO")){
+            socket.end();
+            return;
+        }
 
-function DownloadFile(filename, BasePath, socket){
-    const filePath = `${BasePath}/${filename}`
-    if(!fs.existsSync(filePath)) {
-        socket.write("Error, no existe el archivo :(")
-        socket.end()
-    }
-    
-    const size = fs.statSync(filePath).size;
-    socket.write(`FILESIZE ${size}`);
-    const readStream = fs.createReadStream(filePath).pipe(socket)
+        trySelectActive(socket);
+
+        socket.on("data", handleCommands);
+    });
+
+    socket.on('close', ()=>{
+        if(socket === outboundSocket) outboundSocket = null;
+        if(socket === activeSocket) activeSocket = null;
+    });
+
+    return socket;
 }
