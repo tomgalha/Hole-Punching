@@ -1,6 +1,6 @@
 import { SendMessages, FetchData, HandleMessages} from "./Client.js";
 import readline from "readline";
-import { peerEvents, StartTCPServer } from "../PeerTCP/TCPConnection.js";
+import { peerEvents, StartTCPServer,RequestFile } from "../PeerTCP/TCPConnection.js";
 
 const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
 
@@ -20,7 +20,7 @@ rl.question("Ingrese su nombre de usuario: ", (nombre) => {
             rl.question("1- Descargar archivo \n2- Descargar carpeta: ", ans =>{
                 if(ans == 1){
                     rl.question("Ingrese el nombre del archivo: ", filename =>{
-                        //RequestFile(filename);
+                        RequestFile(filename);
                         //Socket.write(`DOWNLOADFILE ${filename}`)
                         // Download File
                     })

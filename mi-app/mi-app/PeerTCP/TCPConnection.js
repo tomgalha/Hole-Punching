@@ -31,19 +31,63 @@ function trySelectActive(socket){
     }
 }
 
-function handleCommands(data){
-    const msg = data.trim();
+export function RequestFile(filename){
+    activeSocket.write(`DOWNLOADFILE ${filename}\n`);
+}
 
-    if(msg === "LIST"){
-        console.log("Quiere ver los archivos")
-        sendList(activeSocket);
-    }
-    else if(msg.startsWith("DOWNLOADFILE")){
-        const filename = msg.split(" ")[1];
-        console.log("El archivo que quiere descargar es: " + filename);
-    }else if(msg.includes("END_LIST")) peerEvents.emit("LIST_READY");
-    else{
-        console.log(msg);
+
+let state = "TEXT";
+let expectedBytes = 0;
+let receivedBytes = 0;
+let writeStream = null;
+let buffer = Buffer.alloc(0);
+
+function handleCommands(data) {
+    buffer = Buffer.concat([buffer, data]); // acumula datos TCP
+
+    while (true) {
+        if (state === "TEXT") {
+            const newlineIndex = buffer.indexOf("\n");
+            if (newlineIndex === -1) return; // esperar a la próxima data
+
+            const line = buffer.subarray(0, newlineIndex).toString().trim();
+            buffer = buffer.subarray(newlineIndex + 1);
+
+
+            if (line === "LIST") {
+                console.log("Quiere ver los archivos");
+                sendList(activeSocket);
+            } else if (line.startsWith("DOWNLOADFILE")) {
+                const filename = line.split(" ")[1];
+                console.log("El archivo que quiere descargar es: " + filename);
+                sendFile(filename);
+            } else if (line.startsWith("FILESIZE")) {
+                expectedBytes = Number(line.split(" ")[1]);
+                receivedBytes = 0;
+                writeStream = fs.createWriteStream("C:/Users/totog/Music/DownloadedSongs/song.mp3");
+                state = "FILE";
+            } else if (line === "END_LIST") {
+                peerEvents.emit("LIST_READY");
+            } else {
+                console.log(line);
+            }
+        } else if (state === "FILE") {
+            if (buffer.length === 0) return;
+
+            const remaining = expectedBytes - receivedBytes;
+            const chunk = buffer.subarray(0, remaining);
+            buffer = buffer.subarray(chunk.length);
+
+
+            writeStream.write(chunk);
+            receivedBytes += chunk.length;
+
+            if (receivedBytes === expectedBytes) {
+                writeStream.end();
+                console.log("Archivo descargado ✔");
+                state = "TEXT";
+            }
+        }
     }
 }
 
@@ -59,7 +103,34 @@ function sendList(socket){
         socket.write("File size: " + (stats.size / (1024 * 1024)).toFixed(2)  +" MB"+ "\n");
     });
 
-    socket.write("END_LIST");
+    socket.write("END_LIST\n");
+}
+
+
+function sendFile(filename){
+    const filepath = `C:/Users/totog/Music/Music/Dad's rock/${filename}`;
+
+    if(!fs.existsSync(filepath)){
+        activeSocket.write("Song not found!");
+        return;
+    }
+    
+
+    const size = fs.statSync(filepath).size;
+
+    //Avisar tamanio
+
+    activeSocket.write(`FILESIZE ${size}\n`);
+
+
+    // Mandar bytes
+
+    const stream = fs.createReadStream(filepath);
+    stream.on('data', chunk => activeSocket.write(chunk));
+    stream.on('end', () => {
+        activeSocket.write("ENDFILE\n");
+        console.log("Archivo enviado");
+    });
 }
 
 export function StartTCPServer(TCP_PORT){
@@ -68,13 +139,12 @@ export function StartTCPServer(TCP_PORT){
         role = "OWNER";
 
         socket.setKeepAlive(true,10000);
-        socket.setEncoding('utf-8');
+        //socket.setEncoding('utf-8');
 
         inboundSocket = socket;
 
         socket.once('data', data =>{
-            console.log(data);
-            if(!data.startsWith("HELLO")){
+            if(!data.toString().startsWith("HELLO")){
                 socket.end();
                 return;
             }
@@ -102,7 +172,7 @@ export function ConnectTCP(PORT, peerIp){
         console.log("Outbound TCP conectado");
 
         socket.setKeepAlive(true,10000);
-        socket.setEncoding('utf-8');
+    //    socket.setEncoding('utf-8');
 
         outboundSocket = socket;
         socket.write("HELLO REQUESTER\n");
@@ -110,7 +180,7 @@ export function ConnectTCP(PORT, peerIp){
 
     socket.once('data', data =>{
         console.log(data);
-        if(!data.startsWith("HELLO")){
+        if(!data.toString().startsWith("HELLO")){
             socket.end();
             return;
         }
