@@ -1,6 +1,7 @@
 import fs from "fs";
 import net from "net";
 import { EventEmitter } from "events";
+import path from "path";
 
 export const peerEvents = new EventEmitter();
 
@@ -62,9 +63,11 @@ function handleCommands(data) {
                 console.log("El archivo que quiere descargar es: " + filename);
                 sendFile(filename);
             } else if (line.startsWith("FILESIZE")) {
-                expectedBytes = Number(line.split(" ")[1]);
+                const [,expByt, fname,ext] = line.split(" ");
+
+                expectedBytes = Number(expByt);
                 receivedBytes = 0;
-                writeStream = fs.createWriteStream("C:/Users/totog/Music/DownloadedSongs/song.mp3");
+                writeStream = fs.createWriteStream(`C:/Users/totog/Music/DownloadedSongs/${fname}${ext}`);
                 state = "FILE";
             } else if (line === "END_LIST") {
                 peerEvents.emit("LIST_READY");
@@ -120,7 +123,7 @@ function sendFile(filename){
 
     //Avisar tamanio
 
-    activeSocket.write(`FILESIZE ${size}\n`);
+    activeSocket.write(`FILESIZE ${size} ${filename} ${path.extname(filepath)}\n`);
 
 
     // Mandar bytes
