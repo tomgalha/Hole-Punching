@@ -19,23 +19,28 @@ app.get("/peer/:userId", (req, res) => {
   if (!user) {
     return res.status(404).json({ error: "offline" });
   }
-  res.json({ ip: user.ip, port: user.port });
+  res.json({ ip: user.ip, udp_port: user.udp_port, tcp_port: user.tcp_port });
 });
 
 app.listen(HTTP_PORT, () => {
   console.log("HTTP en", HTTP_PORT);
 });
 
+app.get('/usersConnected', (req, res) => {
+  res.json([...onlineUsers]);
+});
+
 // UDP
 udp.on("message", (msg, rinfo) => {
   const text = msg.toString();
-  const [cmd, userId] = text.split(" ");
+  const [cmd, userId, userTCPP] = text.split(" ");
 
   // SOLO presencia
-  if (cmd === "HELLO" && userId) {
+  if (cmd === "HELLO" && userId && userTCPP) {
     onlineUsers.set(userId, {
       ip: rinfo.address,
-      port: rinfo.port,
+      udp_port: rinfo.port,
+      tcp_port: userTCPP,
       lastSeen: Date.now()
     });
     console.log("HELLO", userId);
@@ -53,12 +58,12 @@ udp.on("message", (msg, rinfo) => {
 setInterval(() => {
   const now = Date.now();
   for (const [userId, user] of onlineUsers) {
-    if (now - user.lastSeen > 90_000) {
+    if (now - user.lastSeen > 9000) {
       onlineUsers.delete(userId);
       console.log("OFFLINE", userId);
     }
   }
-}, 30_000);
+}, 3000);
 
 udp.bind(UDP_PORT, () => {
   console.log("UDP en", UDP_PORT);

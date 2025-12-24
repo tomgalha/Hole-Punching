@@ -1,21 +1,22 @@
 import dgram from "dgram";
-import {ConnectTCP,StartTCPServer} from "../PeerTCP/TCPConnection.js"
+import {ConnectTCP} from "../PeerTCP/TCPConnection.js"
 
 const socket = dgram.createSocket("udp4");
-const TCP_PORT = 5001;
+socket.bind();
+//const TCP_PORT = 5001;
 
-let peerIp, peerPort;
+let peerIp, peerUDPPort, peerTCPPort;
 let punched = false;
 let punchAttempts = 0;
 let punchInterval;
 
 // --- UDP HELLO / PING ---
-export function SendMessages(nombreUser){
-    socket.send(Buffer.from(`HELLO ${nombreUser}`), 4000, "127.0.0.1");
+export function SendMessages(nombreUser, tcp_port){
+    socket.send(Buffer.from(`HELLO ${nombreUser} ${tcp_port}`), 4000, "127.0.0.1");
 
     setInterval(() => {
         socket.send(Buffer.from(`PING ${nombreUser}`), 4000, "127.0.0.1");
-    }, 20000);
+    }, 1000);
 }
 
 // --- Obtener datos de peer y arrancar punch ---
@@ -25,8 +26,9 @@ export function FetchData(peerName){
         .then(r => r.json())
         .then(data => {
             peerIp = data.ip;
-            peerPort = data.port;
-            console.log("Peer:", peerIp, peerPort);
+            peerUDPPort = data.udp_port;
+            peerTCPPort = data.tcp_port;
+            console.log(`Peer: ${peerIp}, UDP PORT: ${peerUDPPort}, TCP PORT: ${peerTCPPort}`);
             StartPunch();
         });
     }, 6000);
@@ -43,7 +45,7 @@ function StartPunch(){
             return;
         }
 
-        socket.send(Buffer.from("PUNCH"), peerPort, peerIp);
+        socket.send(Buffer.from("PUNCH"), peerUDPPort, peerIp);
         punchAttempts++;
         console.log("PUNCH intento", punchAttempts);
     }, 800);
@@ -65,12 +67,24 @@ export function HandleMessages(){
             punched=true;
             console.log("UDP hole abierto");
 
-            ConnectTCP(TCP_PORT, peerIp);
+            // 5001 para probar desde la misma pc 
+            ConnectTCP(5001, peerIp);
 
-          //  punched = true;
+            //  punched = true;
             //console.log("UDP hole abierto");
             //StartTCPServer(TCP_PORT);
             //ConnectTCP(TCP_PORT,peerIp);
         }
     });
+}
+
+
+// --- Mostrar usuarios conectados
+export async function OnlineUsers(){
+    const data = await fetch("http://localhost:3000/usersConnected");
+    const json = await data.json();
+
+    for(const user of json){
+        console.log(user);
+    }
 }
