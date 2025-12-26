@@ -16,12 +16,11 @@ contextBridge.exposeInMainWorld("p2p", {
   },
 
   setUsernameOwner: (username) => {
-    OwnerUsername = username;
-    console.log(`Owner username: ${OwnerUsername}`)
+    ipcRenderer.invoke('p2p:set-username-owner', username);
   },
 
   fetchData: () => {
-    ipcRenderer.invoke('p2p:fetch-data', RequesterUsername);
+    ipcRenderer.invoke('p2p:fetch-data');
   },
 
   onEvent: (event, cb) => {

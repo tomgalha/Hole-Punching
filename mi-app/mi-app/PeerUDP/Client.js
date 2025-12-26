@@ -38,6 +38,8 @@ export class PeerUDP{
         const r = await fetch(`http://localhost:3000/peer/${peername}`);
         const data = await r.json();
 
+        console.log("EL NOMBRE DEL PEER ES: " + peername);
+
         this.peerIp = data.ip;
         this.peerUDPPort = data.udp_port;
         this.peerTCPPort = data.tcp_port;
@@ -56,9 +58,6 @@ export class PeerUDP{
                 return;
             }
 
-            console.log("IP: " + this.peerIp);
-            console.log("UDP: " + this.peerUDPPort);
-            console.log("TCP: " + this.peerTCPPort);
 
             this.socket.send(
                 Buffer.from("PUNCH"),

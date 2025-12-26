@@ -9,6 +9,7 @@ import {
 import {PeerUDP} from './mi-app/PeerUDP/Client.js';
 
 let peer = null;
+let OwnerUsername = null;
 
 ipcMain.handle("p2p:set-username", (_, username)=>{
     console.log(username);
@@ -16,6 +17,7 @@ ipcMain.handle("p2p:set-username", (_, username)=>{
 
 ipcMain.handle("p2p:set-username-owner", (_, username)=>{
     console.log(`Owner of the files: ${username}`);
+    OwnerUsername = username;
 })
 
 ipcMain.handle("p2p:udpmessage", (_, username)=>{
@@ -23,7 +25,7 @@ ipcMain.handle("p2p:udpmessage", (_, username)=>{
     peer.startHello();
 })
 
-ipcMain.handle("p2p:fetch-data", (_,OwnerUsername)=>{
+ipcMain.handle("p2p:fetch-data", ()=>{
     console.log('fetching data..');
     peer.fetchpeer(OwnerUsername);
 })
