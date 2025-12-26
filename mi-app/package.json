@@ -2,9 +2,9 @@
   "name": "mi-app",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
+  "main": "main.js",
   "scripts": {
-    "start": "nodemon ./mi-app/server.js"
+    "start": "electron ."
   },
   "keywords": [],
   "author": "",
@@ -14,5 +14,8 @@
     "dgram": "^1.0.1",
     "express": "^5.2.1",
     "nodemon": "^3.1.11"
+  },
+  "devDependencies": {
+    "electron": "^39.2.7"
   }
 }

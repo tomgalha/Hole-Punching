@@ -33,14 +33,14 @@ app.get('/usersConnected', (req, res) => {
 // UDP
 udp.on("message", (msg, rinfo) => {
   const text = msg.toString();
-  const [cmd, userId, userTCPP] = text.split(" ");
+  const [cmd, userId, userTCP] = text.split(" ");
 
   // SOLO presencia
-  if (cmd === "HELLO" && userId && userTCPP) {
+  if (cmd === "HELLO" && userId && userTCP) {
     onlineUsers.set(userId, {
       ip: rinfo.address,
       udp_port: rinfo.port,
-      tcp_port: userTCPP,
+      tcp_port: userTCP,
       lastSeen: Date.now()
     });
     console.log("HELLO", userId);

@@ -36,6 +36,10 @@ export function RequestFile(filename){
     activeSocket.write(`DOWNLOADFILE ${filename}\n`);
 }
 
+export function RequestFolder(){
+    activeSocket.write("DOWNLOADFOLDER\n");
+}
+
 
 let state = "TEXT";
 let expectedBytes = 0;
@@ -58,6 +62,9 @@ function handleCommands(data) {
             if (line === "LIST") {
                 console.log("Quiere ver los archivos");
                 sendList(activeSocket);
+            if(line==="DOWNLOADFOLDER"){
+                sendFolder();
+            }
             } else if (line.startsWith("DOWNLOADFILE")) {
                 const filename = line.split(" ")[1];
                 console.log("El archivo que quiere descargar es: " + filename);
@@ -88,6 +95,7 @@ function handleCommands(data) {
             if (receivedBytes === expectedBytes) {
                 writeStream.end();
                 console.log("Archivo descargado ✔");
+                peerEvents.emit("FILESENT");
                 state = "TEXT";
             }
         }
@@ -95,11 +103,14 @@ function handleCommands(data) {
 }
 
 function sendList(socket){
+ //   let songs = [];
     const basePath = "C:/Users/totog/Music/Music/Dad's rock";
     const files = fs.readdirSync(basePath);
 
     files.forEach(f =>{
         const fullPath = `${basePath}/${f}`;
+   //     songs.push(fullPath);
+
         const stats = fs.statSync(fullPath);
 
         socket.write(`${f}\n`);
@@ -107,8 +118,16 @@ function sendList(socket){
     });
 
     socket.write("END_LIST\n");
+   // return songs;
 }
 
+function sendFolder(){
+    const list = sendList(activeSocket);
+
+    for(const song of list){
+        console.log(song);
+    }
+}
 
 function sendFile(filename){
     const filepath = `C:/Users/totog/Music/Music/Dad's rock/${filename}`;
