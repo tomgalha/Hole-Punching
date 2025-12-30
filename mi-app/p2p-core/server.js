@@ -19,7 +19,7 @@ app.get("/peer/:userId", (req, res) => {
   if (!user) {
     return res.status(404).json({ error: "offline" });
   }
-  res.json({ ip: user.ip, udp_port: user.udp_port, tcp_port: user.tcp_port });
+  res.json({ ip: user.ip, udp_port: user.udp_port });
 });
 
 app.listen(HTTP_PORT, () => {
@@ -32,22 +32,41 @@ app.get('/usersConnected', (req, res) => {
 
 // UDP
 udp.on("message", (msg, rinfo) => {
+
   const text = msg.toString();
-  const [cmd, userId, userTCP] = text.split(" ");
+  const [cmd, targetUser, senderUser] = text.split(" ");
 
   // SOLO presencia
-  if (cmd === "HELLO" && userId && userTCP) {
-    onlineUsers.set(userId, {
+  if (cmd === "HELLO" && targetUser) {
+    onlineUsers.set(targetUser, {
       ip: rinfo.address,
       udp_port: rinfo.port,
-      tcp_port: userTCP,
       lastSeen: Date.now()
     });
-    console.log("HELLO", userId);
+    console.log("HELLO", targetUser);
   }
 
-  if (cmd === "PING" && userId) {
-    const user = onlineUsers.get(userId);
+  if (cmd === "REQUEST") {
+    // Estructura: "REQUEST targetUser senderUser"
+
+    const target = onlineUsers.get(targetUser);
+    const sender = onlineUsers.get(senderUser);
+
+    if (target && sender) {
+        console.log(`Conectando ${senderUser} -> ${targetUser}`);
+
+        udp.send(Buffer.from("REQUEST_ACK"), rinfo.port, rinfo.address);
+
+        const wakeUpMsg = Buffer.from(`START_PUNCH_WITH ${senderUser} ${sender.udp_port} ${sender.ip}`);
+        
+        udp.send(wakeUpMsg, target.udp_port, target.ip);
+    } else {
+        console.log("Usuario no encontrado o desconectado");
+    }
+}
+
+  if (cmd === "PING" && targetUser) {
+    const user = onlineUsers.get(targetUser);
     if (user) {
       user.lastSeen = Date.now();
     }

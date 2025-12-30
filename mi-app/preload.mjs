@@ -1,26 +1,32 @@
 import { contextBridge, ipcRenderer } from "electron";
 
-let OwnerUsername = null;
-let RequesterUsername = null;
-
 contextBridge.exposeInMainWorld("p2p", {
   startServer: (port) => ipcRenderer.invoke("p2p:start-server", port),
   connect: (port, ip) => ipcRenderer.invoke("p2p:connect", port, ip),
   requestFile: (filename) => ipcRenderer.invoke("p2p:request-file", filename),
 
   setUsername: (username) =>{
-    RequesterUsername = username 
-    console.log(RequesterUsername);
-
-    ipcRenderer.invoke("p2p:udpmessage", username);
+    ipcRenderer.invoke('p2p:set-username', username);
   },
 
   setUsernameOwner: (username) => {
     ipcRenderer.invoke('p2p:set-username-owner', username);
   },
 
+  setTCP: (tcp_value) =>{
+    ipcRenderer.invoke('p2p:set_tcp', tcp_value);
+  },
+
   fetchData: () => {
     ipcRenderer.invoke('p2p:fetch-data');
+  },
+
+  sendMessage: (message)=>{
+    ipcRenderer.invoke('p2p:send-message', message);
+  },
+
+  getFiles: () =>{
+    ipcRenderer.invoke('p2p:list-files');
   },
 
   onEvent: (event, cb) => {

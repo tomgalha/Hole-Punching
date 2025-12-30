@@ -1,0 +1,129 @@
+import dgram from "dgram";
+import fs from 'fs';
+
+export class PeerUDP{
+    constructor(nombreUser){
+        this.nombreUser = nombreUser;
+
+        this.peerIp = null;
+        this.peerUDPPort = null;
+
+        this.punched = false;
+        this.punchAttempts = 0;
+        
+        this.socket = dgram.createSocket("udp4");
+        this.socket.bind(0, ()=>{
+            console.log(`UDP puerto: ${this.socket.address().port}`);
+        })
+
+        this.socket.on("message", this.HandleMessages.bind(this));
+    }
+
+    startHello(){
+        console.log("Starting hello..");
+        this.socket.send(
+            Buffer.from(`HELLO ${this.nombreUser}`), 4000, "127.0.0.1"
+        );
+
+        this.helloInterval = setInterval(()=>{
+            this.socket.send(
+                Buffer.from(`PING ${this.nombreUser}`),4000,"127.0.0.1"
+            );
+        },1000)
+    }
+
+    async fetchpeer(peername){
+        const r = await fetch(`http://localhost:3000/peer/${peername}`);
+        const data = await r.json();
+
+        console.log(data);
+
+        this.peerIp = data.ip;
+        this.peerUDPPort = data.udp_port;
+
+        
+        // Aca le comunico al server que quiero los datos de el otro usuario
+        // Cuando el server recibe ambos mensajes, envia un mensaje a los usuarios diciendo que arranquen
+
+        this.socket.send(Buffer.from(`REQUEST ${peername} ${this.nombreUser}`), 4000, "127.0.0.1");
+    }
+
+    startPunch(){
+        this.punchAttempts = 0;
+        this.punched = false;
+
+
+        this.punchInterval = setInterval(()=>{
+            if(this.punched || this.punchAttempts >=10){
+                return;
+            }
+            this.socket.send(
+                Buffer.from("PUNCH"),
+                this.peerUDPPort,
+                this.peerIp
+            );
+            this.punchAttempts++;
+            console.log("PUNCH intento", this.punchAttempts);
+
+        },800)
+    }
+
+    HandleMessages(msg,rinfo){
+        const text = msg.toString();
+        const parts = text.split(" ");
+        const cmd = parts[0];
+        const data = parts.slice(1).join(" ");
+
+        if(cmd === "REQUEST_ACK"){
+            this.startPunch();
+        }
+
+        if(cmd === "START_PUNCH_WITH"){
+            const [_,name,port,ip] = text.split(" ");
+            this.peerUDPPort=port;
+            this.peerIp=ip;
+            
+            console.log(`El usuario ${name} quiere conectar.. Iniciando punch`);
+            this.startPunch();
+        }
+
+        if(cmd === "PUNCH"){
+            this.socket.send("PUNCH_ACK", rinfo.port, rinfo.address);
+        }
+
+        if(cmd === "PUNCH_ACK" && !this.punched){
+            this.punched = true;
+            console.log("UDP HOLE OPEN");
+        }
+        
+        if(cmd === "MESSAGE"){
+            console.log(data);
+        }
+
+        if(cmd === "LIST-FILES"){
+            const folder_path = "C:/Users/totog/Music/Music/Dad's rock";
+            fs.readdir(folder_path, (err, files)=>{
+                if(err) {
+                    console.log(err);
+                    return
+                }
+
+                for(const file of files){
+                    this.socket.send(Buffer.from(`FILE ${file}`), this.peerUDPPort, this.peerIp);
+                }
+            })
+        }
+
+        if(cmd.startsWith("FILE")){
+            console.log(data);
+        }
+    }
+
+    SendMessage(message){
+        this.socket.send(Buffer.from(`MESSAGE ${message}`), this.peerUDPPort,this.peerIp);
+    }
+
+    ListFiles(){
+        this.socket.send(Buffer.from("LIST-FILES"), this.peerUDPPort,this.peerIp);
+    }
+}

@@ -23,5 +23,5 @@ function createWindow() {
 
 app.whenReady().then(()=>{
   createWindow('user1');
-  createWindow('user2');
+ // createWindow('user2');
 });
