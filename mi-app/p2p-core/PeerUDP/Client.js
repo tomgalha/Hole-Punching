@@ -22,18 +22,18 @@ export class PeerUDP{
     startHello(){
         console.log("Starting hello..");
         this.socket.send(
-            Buffer.from(`HELLO ${this.nombreUser}`), 4000, "127.0.0.1"
+            Buffer.from(`HELLO ${this.nombreUser}`), 4000, "18.118.150.53"
         );
 
         this.helloInterval = setInterval(()=>{
             this.socket.send(
-                Buffer.from(`PING ${this.nombreUser}`),4000,"127.0.0.1"
+                Buffer.from(`PING ${this.nombreUser}`),4000,"18.118.150.53"
             );
         },1000)
     }
 
     async fetchpeer(peername){
-        const r = await fetch(`http://localhost:3000/peer/${peername}`);
+        const r = await fetch(`http://18.118.150.53:3000/peer/${peername}`);
         const data = await r.json();
 
         console.log(data);
@@ -45,12 +45,14 @@ export class PeerUDP{
         // Aca le comunico al server que quiero los datos de el otro usuario
         // Cuando el server recibe ambos mensajes, envia un mensaje a los usuarios diciendo que arranquen
 
-        this.socket.send(Buffer.from(`REQUEST ${peername} ${this.nombreUser}`), 4000, "127.0.0.1");
+        this.socket.send(Buffer.from(`REQUEST ${peername} ${this.nombreUser}`), 4000, "18.118.150.53");
     }
 
     startPunch(){
         this.punchAttempts = 0;
         this.punched = false;
+
+        console.log(`El puerto UDP del peer es: ${this.peerUDPPort} y su ip: ${this.peerIp}`);
 
 
         this.punchInterval = setInterval(()=>{
@@ -60,8 +62,13 @@ export class PeerUDP{
             this.socket.send(
                 Buffer.from("PUNCH"),
                 this.peerUDPPort,
-                this.peerIp
+                this.peerIp,
+                (err)=>{
+                    if(err) console.log("Error enviando punch",err)
+                }
             );
+
+            console.log(`Disparando PUNCH a ${this.peerIp}:${this.peerUDPPort} (Intento ${this.punchAttempts})`);
             this.punchAttempts++;
             console.log("PUNCH intento", this.punchAttempts);
 

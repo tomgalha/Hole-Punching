@@ -1,27 +1,21 @@
-import {app,BrowserWindow} from "electron";
-import path from "path";
-import { fileURLToPath } from "url";
+const colors = {
+    cyan: '\x1b[36m',
+    green: '\x1b[32m',
+    reset: '\x1b[0m',
+    dim: '\x1b[2m'
+};
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
 
-import "./handle.js"
-
-function createWindow() {
-  const win = new BrowserWindow({
-    width: 1000,
-    height: 700,
-    webPreferences: {
-      preload: path.join(__dirname, "preload.mjs"),
-      sandbox: false
-    }
-  });
-
-  win.loadFile("index.html");
+async function getUsersOnline(){
+    const data = await fetch("http://18.118.150.53:3000/usersConnected");
+    const json = await data.json();
+    console.log(json);
 }
 
 
-app.whenReady().then(()=>{
-  createWindow('user1');
- // createWindow('user2');
-});
+function Header(){
+    getUsersOnline();
+    console.log(`${colors.cyan}┌───────────────────────────────────────────────────────────┐${colors.reset}`);
+    console.log(`${colors.cyan}│${colors.reset}  VIA MUSIC P2P - [ Peers: 0 ] [ Status: ONLINE ]      ${colors.cyan}│${colors.reset}`);
+    console.log(`${colors.cyan}├───────┬───────────────────────────────────────────────────┤${colors.reset}`);
+}
