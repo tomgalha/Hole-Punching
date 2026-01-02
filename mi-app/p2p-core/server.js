@@ -80,7 +80,7 @@ udp.on("message", (msg, rinfo) => {
 setInterval(() => {
   const now = Date.now();
   for (const [userId, user] of onlineUsers) {
-    if (now - user.lastSeen > 900) {
+    if (now - user.lastSeen > 9000) {
       onlineUsers.delete(userId);
       console.log("OFFLINE", userId);
     }

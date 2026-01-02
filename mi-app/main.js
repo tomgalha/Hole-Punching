@@ -6,6 +6,8 @@ import {emmiter} from "./p2p-core/PeerUDP/Client.js";
 
 const rl = readline.createInterface({input,output});
 
+import os from 'os';
+
 let peer = null;
 
 const colors = {
@@ -28,6 +30,8 @@ async function getUsersOnline(){
 async function RegisterUser(){
     const username = await rl.question("Insert username: ");
     peer = new PeerUDP(username);
+    peer.SetFolder(`C:/Users/${os.userInfo().username}/Music/Music/Dad's rock`);
+//    console.log(peer.NumberOfFiles());
     peer.startHello();
 }
 
@@ -37,6 +41,7 @@ await RegisterUser();
 async function Header(){
    // await RegisterUser();
     const users_online = await getUsersOnline();
+    console.log(users_online);
     const number_users_online = users_online.online_lenght;
 
     console.log(`${colors.cyan}┌───────────────────────────────────────────────────────────┐${colors.reset}`);
@@ -45,8 +50,9 @@ async function Header(){
 
     for(let i=0; i<number_users_online;i++){
         const nombreRaw= users_online.users[i][0];
+        const n_files = users_online.users[i][1].number_of_files;
         const nombreFijo = nombreRaw.padEnd(5);
-        console.log(`${colors.cyan}│${colors.reset} ${nombreFijo} ${colors.cyan}│${colors.reset} `);
+        console.log(`${colors.cyan}│${colors.reset} ${nombreFijo} ${colors.cyan}│${colors.reset}  Files shared: ${n_files}`);
     }
 
     Bottom();

@@ -8,7 +8,7 @@ export class PeerUDP{
     constructor(nombreUser){
         this.nombreUser = nombreUser;
 
-        this.shared_folder = "C:/Users/totog/Music/Music";
+        this.shared_folder = "";
 
         this.peerIp = null;
         this.peerUDPPort = null;
@@ -24,9 +24,15 @@ export class PeerUDP{
         this.socket.on("message", this.HandleMessages.bind(this));
     }
 
+    FolderExists(folderpath){
+        return fs.existsSync(folderpath);
+    }
+
     NumberOfFiles(){
-        const fileNumber = fs.readdirSync(this.shared_folder).length;
-        return fileNumber;
+        if(this.FolderExists(this.shared_folder)){
+            const fileNumber = fs.readdirSync(this.shared_folder).length;
+            return fileNumber;
+        }
     }
 
     startHello(){
@@ -86,7 +92,9 @@ export class PeerUDP{
 
     // Setter
     SetFolder(folder_path){
-        this.shared_folder = folder_path; 
+        console.log(this.FolderExists(folder_path));
+        if(this.FolderExists(folder_path)) this.shared_folder = folder_path; 
+        console.log("la carpeta es: " + this.shared_folder);
     }
     //Getter
     ReturnFolder(){
