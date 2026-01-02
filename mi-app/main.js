@@ -1,3 +1,11 @@
+import { PeerUDP } from "./p2p-core/PeerUDP/Client.js";
+import * as readline from "node:readline/promises";
+import {stdin as input,stdout as output} from "node:process";
+
+const rl = readline.createInterface({input,output});
+
+let peer = null;
+
 const colors = {
     cyan: '\x1b[36m',
     green: '\x1b[32m',
@@ -9,13 +17,55 @@ const colors = {
 async function getUsersOnline(){
     const data = await fetch("http://18.118.150.53:3000/usersConnected");
     const json = await data.json();
-    console.log(json);
+    return {
+        online_lenght: json.length,
+        users : json
+    }
+}
+
+function RegisterUser(){
+    peer = new PeerUDP("tom");
+    peer.startHello();
+
+    const peer2 = new PeerUDP("mili");
+    peer2.startHello();
 }
 
 
-function Header(){
-    getUsersOnline();
+async function Header(){
+    RegisterUser();
+    const users_online = await getUsersOnline();
+    const number_users_online = users_online.online_lenght;
+
     console.log(`${colors.cyan}┌───────────────────────────────────────────────────────────┐${colors.reset}`);
-    console.log(`${colors.cyan}│${colors.reset}  VIA MUSIC P2P - [ Peers: 0 ] [ Status: ONLINE ]      ${colors.cyan}│${colors.reset}`);
+    console.log(`${colors.cyan}│${colors.reset}  VIA MUSIC P2P - [ Peers: ${number_users_online} ] [ Status: ONLINE ]          ${colors.cyan}│${colors.reset}`);
     console.log(`${colors.cyan}├───────┬───────────────────────────────────────────────────┤${colors.reset}`);
+
+    for(let i=0; i<number_users_online;i++){
+        const nombreRaw= users_online.users[i][0];
+        const nombreFijo = nombreRaw.padEnd(5);
+        console.log(`${colors.cyan}│${colors.reset} ${nombreFijo} ${colors.cyan}│${colors.reset} `);
+    }
+
+    Bottom();
 }
+
+
+async function Bottom(){
+    console.log(`${colors.cyan}├───────┴───────────────────────────────────────────────────┤${colors.reset}`);
+    console.log(`${colors.cyan}│${colors.reset} [1] Search user  [2] Downloads  [3] Files  [4] Exit       ${colors.cyan}│${colors.reset}`);
+    console.log(`${colors.cyan}└───────────────────────────────────────────────────────────┘${colors.reset}`);
+
+    const answer = await rl.question("> ");
+    HandleOptions(answer);
+}
+
+async function HandleOptions(option){
+    if(option == 1){
+        const username = await rl.question("Insert username: ");
+        const peer_data = await peer.fetchpeer(username);
+        console.log(peer_data);
+    }
+}
+
+Header();

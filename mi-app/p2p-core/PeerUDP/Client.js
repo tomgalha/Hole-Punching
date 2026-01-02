@@ -5,6 +5,8 @@ export class PeerUDP{
     constructor(nombreUser){
         this.nombreUser = nombreUser;
 
+        this.shared_folder = "C:/Users/totog/Music/Music";
+
         this.peerIp = null;
         this.peerUDPPort = null;
 
@@ -70,9 +72,17 @@ export class PeerUDP{
 
             console.log(`Disparando PUNCH a ${this.peerIp}:${this.peerUDPPort} (Intento ${this.punchAttempts})`);
             this.punchAttempts++;
-            console.log("PUNCH intento", this.punchAttempts);
-
         },800)
+    }
+
+    // Setter
+    SetFolder(folder_path){
+        this.shared_folder = folder_path; 
+    }
+    //Getter
+
+    ReturnFolder(){
+        return this.shared_folder;
     }
 
     HandleMessages(msg,rinfo){
