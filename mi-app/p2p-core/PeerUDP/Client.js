@@ -140,6 +140,7 @@ export class PeerUDP{
         }
 
         if(cmd === "LIST-FILES"){
+            if(this.NumberOfFiles()===0){return 0};
             fs.readdir(this.shared_folder, (err, files)=>{
                 if(err) {
                     console.log(err);
