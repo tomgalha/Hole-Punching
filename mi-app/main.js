@@ -2,7 +2,7 @@ import { PeerUDP } from "./p2p-core/PeerUDP/Client.js";
 import * as readline from "node:readline/promises";
 import {stdin as input,stdout as output} from "node:process";
 
-import { EventEmitter } from "stream";
+import { EventEmitter } from "events";
 
 const emmiter = new EventEmitter();
 

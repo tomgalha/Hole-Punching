@@ -1,7 +1,6 @@
 import dgram from "dgram";
 import fs from 'fs';
 import EventEmitter from "events";
-import { EventEmitter } from "stream";
 
 const emmiter = new EventEmitter();
 
