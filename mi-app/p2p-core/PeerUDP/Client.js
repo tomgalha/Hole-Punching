@@ -114,16 +114,14 @@ export class PeerUDP{
             this.punched = true;
             console.log("UDP HOLE OPEN");
             emmiter.emit('hole-open');
-            //this.SendMessage("Hola!!");
         }
         
         if(cmd === "MESSAGE"){
-            console.log(data);
+            console.log(`Other: ${data}`);
         }
 
         if(cmd === "LIST-FILES"){
-            const folder_path = "C:/Users/totog/Music/Music/Dad's rock";
-            fs.readdir(folder_path, (err, files)=>{
+            fs.readdir(shared_folder, (err, files)=>{
                 if(err) {
                     console.log(err);
                     return

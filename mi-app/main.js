@@ -53,7 +53,7 @@ async function Header(){
 
 async function Bottom(){
     console.log(`${colors.cyan}├───────┴───────────────────────────────────────────────────┤${colors.reset}`);
-    console.log(`${colors.cyan}│${colors.reset} [1] Search user  [2] Downloads  [3] Files  [4] Exit       ${colors.cyan}│${colors.reset}`);
+    console.log(`${colors.cyan}│${colors.reset} [1] Search user  [2] Refresh  [3] Files  [5] Exit         ${colors.cyan}│${colors.reset}`);
     console.log(`${colors.cyan}└───────────────────────────────────────────────────────────┘${colors.reset}`);
 
     const answer = await rl.question("> ");
@@ -65,14 +65,24 @@ async function HandleOptions(option){
         const username = await rl.question("Insert username: ");
       //  const peer_data = await peer.fetchpeer(username);
 
+      const answer = await rl.question("> ");
         emmiter.once('hole-open', async()=>{
-            console.log("evento registrado");
-            while(true){
-                const message =  await rl.question("Message: ");
-                peer.SendMessage(message);
-            }
-            
+            if(answer==1){
+                while(true){
+                    const message =  await rl.question("You: ");
+                    peer.SendMessage(message);
+                }
+            }  
         })
+
+        await peer.fetchpeer(username)
+
+      console.log(`${colors.cyan}1${colors.reset}-Chat`);
+      console.log(`${colors.cyan}1${colors.reset}-List files`);
+
+
+      
+      
     }
 }
 
