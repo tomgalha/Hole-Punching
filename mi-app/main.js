@@ -66,6 +66,7 @@ async function HandleOptions(option){
         const peer_data = await peer.fetchpeer(username);
 
         emmiter.once('hole-open', async()=>{
+            console.log("evento registrado");
             while(true){
                 const message =  await rl.question("Message: ");
                 peer.SendMessage(message);
