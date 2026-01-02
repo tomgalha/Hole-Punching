@@ -137,7 +137,7 @@ export class PeerUDP{
 
         if(cmd === "HOLE-OPEN"){
             while(true){
-                const message =  await rl.question("You: ");
+                const message =  await rl.question("You (PEER): ");
                 this.SendMessage(message);
             }
         }
