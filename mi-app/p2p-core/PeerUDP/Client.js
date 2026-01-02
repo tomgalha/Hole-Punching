@@ -140,17 +140,18 @@ export class PeerUDP{
         }
 
         if(cmd === "LIST-FILES"){
-            if(this.NumberOfFiles()===0){return 0};
-            fs.readdir(this.shared_folder, (err, files)=>{
-                if(err) {
-                    console.log(err);
-                    return
-                }
+            if(this.NumberOfFiles()!==0){
+                fs.readdir(this.shared_folder, (err, files)=>{
+                    if(err) {
+                        console.log(err);
+                        return
+                    }
 
-                for(const file of files){
-                    this.socket.send(Buffer.from(`FILE ${file}`), this.peerUDPPort, this.peerIp);
-                }
-            })
+                    for(const file of files){
+                        this.socket.send(Buffer.from(`FILE ${file}`), this.peerUDPPort, this.peerIp);
+                    }
+                })
+            }
         }
 
         if(cmd.startsWith("FILE")){
