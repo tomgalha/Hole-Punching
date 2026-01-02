@@ -34,14 +34,16 @@ app.get('/usersConnected', (req, res) => {
 udp.on("message", (msg, rinfo) => {
 
   const text = msg.toString();
-  const [cmd, targetUser, senderUser, numberOfFiles] = text.split(" ");
+  const [cmd, targetUser, senderUser] = text.split(" ");
 
   // SOLO presencia
   if (cmd === "HELLO" && targetUser) {
+    const n_of_files = text.split(" ")[2]; 
+
     onlineUsers.set(targetUser, {
       ip: rinfo.address,
       udp_port: rinfo.port,
-      number_of_files: numberOfFiles,
+      number_of_files: n_of_files,
       lastSeen: Date.now()
     });
     console.log("HELLO", targetUser);
