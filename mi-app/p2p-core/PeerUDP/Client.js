@@ -3,7 +3,7 @@ import fs from 'fs';
 import EventEmitter from "node:events";
 
 export const emmiter = new EventEmitter();
-
+import * as readline from "node:readline/promises";
 import {stdin as input,stdout as output} from "node:process";
 
 
