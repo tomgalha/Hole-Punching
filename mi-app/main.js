@@ -2,6 +2,7 @@ import { PeerUDP } from "./p2p-core/PeerUDP/Client.js";
 import * as readline from "node:readline/promises";
 import {stdin as input,stdout as output} from "node:process";
 
+import {emmiter} from "./p2p-core/PeerUDP/Client.js";
 
 const rl = readline.createInterface({input,output});
 
@@ -64,7 +65,7 @@ async function HandleOptions(option){
         const username = await rl.question("Insert username: ");
         const peer_data = await peer.fetchpeer(username);
 
-        peer.on('hole-open', async()=>{
+        emmiter.once('hole-open', async()=>{
             while(true){
                 const message =  await rl.question("Message: ");
                 peer.SendMessage(message);

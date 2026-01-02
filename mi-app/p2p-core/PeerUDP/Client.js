@@ -1,11 +1,11 @@
 import dgram from "dgram";
 import fs from 'fs';
-import EventEmitter from "events";
+import EventEmitter from "node:events";
 
+export const emmiter = new EventEmitter();
 
-export class PeerUDP extends EventEmitter{
+export class PeerUDP{
     constructor(nombreUser){
-        super();
         this.nombreUser = nombreUser;
 
         this.shared_folder = "C:/Users/totog/Music/Music";
@@ -113,7 +113,7 @@ export class PeerUDP extends EventEmitter{
         if(cmd === "PUNCH_ACK" && !this.punched){
             this.punched = true;
             console.log("UDP HOLE OPEN");
-            this.emit('hole-open');
+            emmiter.emit('hole-open');
             //this.SendMessage("Hola!!");
         }
         
