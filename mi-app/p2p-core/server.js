@@ -39,7 +39,7 @@ udp.on("message", (msg, rinfo) => {
   // SOLO presencia
   if (cmd === "HELLO" && targetUser) {
     const n_of_files = text.split(" ")[2]; 
-
+    console.lo
     onlineUsers.set(targetUser, {
       ip: rinfo.address,
       udp_port: rinfo.port,

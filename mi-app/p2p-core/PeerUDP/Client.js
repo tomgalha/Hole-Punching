@@ -93,16 +93,14 @@ export class PeerUDP{
 
     // Setter
     SetFolder(folder_path){
-        console.log(this.FolderExists(folder_path));
         if(this.FolderExists(folder_path)) this.shared_folder = folder_path; 
-        console.log("la carpeta es: " + this.shared_folder);
     }
     //Getter
     ReturnFolder(){
         return this.shared_folder;
     }
 
-    HandleMessages(msg,rinfo){
+    async HandleMessages(msg,rinfo){
         const text = msg.toString();
         const parts = text.split(" ");
         const cmd = parts[0];
@@ -128,7 +126,15 @@ export class PeerUDP{
         if(cmd === "PUNCH_ACK" && !this.punched){
             this.punched = true;
             console.log("UDP HOLE OPEN");
+            this.socket.send('HOLE-OPEN', this.peerUDPPort, this.peerIp);
             emmiter.emit('hole-open');
+        }
+
+        if(cmd === "HOLE-OPEN"){
+            while(true){
+                const message =  await rl.question("You: ");
+                this.SendMessage(message);
+            }
         }
         
         if(cmd === "MESSAGE"){

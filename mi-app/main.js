@@ -41,7 +41,6 @@ await RegisterUser();
 async function Header(){
    // await RegisterUser();
     const users_online = await getUsersOnline();
-    console.log(users_online);
     const number_users_online = users_online.online_lenght;
 
     console.log(`${colors.cyan}┌───────────────────────────────────────────────────────────┐${colors.reset}`);
