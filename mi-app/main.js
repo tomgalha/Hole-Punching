@@ -60,7 +60,7 @@ async function Header(){
 
 async function Bottom(){
     console.log(`${colors.cyan}├───────┴───────────────────────────────────────────────────┤${colors.reset}`);
-    console.log(`${colors.cyan}│${colors.reset} [1] Search user  [2] Refresh  [3] Files  [5] Exit         ${colors.cyan}│${colors.reset}`);
+    console.log(`${colors.cyan}│${colors.reset} [1] Search user  [2] Refresh  [3] Set folder  [5] Exit    ${colors.cyan}│${colors.reset}`);
     console.log(`${colors.cyan}└───────────────────────────────────────────────────────────┘${colors.reset}`);
 
     const answer = await rl.question("> ");
@@ -93,6 +93,14 @@ async function HandleOptions(option){
 
     if(option == 2){
         console.clear();
+        Header();
+    }
+
+    if(option == 3){
+        console.log(`Current folder: ${peer.ReturnFolder()}`);
+        const folderpath = await rl.question("Write the folder path: ");
+        peer.SetFolder(folderpath);
+        console.log(`Folder updated to: ${peer.ReturnFolder()}`); // FIJARSE PORQUE NO ACTUALIZA EL SERVER ENTONCES EL NUM DE ARCHIVOS SIGUE IGUAL
         Header();
     }
 
