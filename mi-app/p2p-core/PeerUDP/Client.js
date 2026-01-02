@@ -32,7 +32,7 @@ export class PeerUDP{
     startHello(){
         console.log("Starting hello..");
         this.socket.send(
-            Buffer.from(`HELLO ${this.nombreUser} ${this.NumberOfFiles}`), 4000, "18.118.150.53"
+            Buffer.from(`HELLO ${this.nombreUser} ${this.NumberOfFiles()}`), 4000, "18.118.150.53"
         );
 
         this.helloInterval = setInterval(()=>{
