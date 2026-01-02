@@ -34,13 +34,14 @@ app.get('/usersConnected', (req, res) => {
 udp.on("message", (msg, rinfo) => {
 
   const text = msg.toString();
-  const [cmd, targetUser, senderUser] = text.split(" ");
+  const [cmd, targetUser, senderUser, numberOfFiles] = text.split(" ");
 
   // SOLO presencia
   if (cmd === "HELLO" && targetUser) {
     onlineUsers.set(targetUser, {
       ip: rinfo.address,
       udp_port: rinfo.port,
+      number_of_files: numberOfFiles,
       lastSeen: Date.now()
     });
     console.log("HELLO", targetUser);
@@ -77,7 +78,7 @@ udp.on("message", (msg, rinfo) => {
 setInterval(() => {
   const now = Date.now();
   for (const [userId, user] of onlineUsers) {
-    if (now - user.lastSeen > 9000) {
+    if (now - user.lastSeen > 900) {
       onlineUsers.delete(userId);
       console.log("OFFLINE", userId);
     }

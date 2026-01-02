@@ -24,10 +24,15 @@ export class PeerUDP{
         this.socket.on("message", this.HandleMessages.bind(this));
     }
 
+    NumberOfFiles(){
+        const fileNumber = fs.readdirSync(this.shared_folder).length;
+        return fileNumber;
+    }
+
     startHello(){
         console.log("Starting hello..");
         this.socket.send(
-            Buffer.from(`HELLO ${this.nombreUser}`), 4000, "18.118.150.53"
+            Buffer.from(`HELLO ${this.nombreUser} ${this.NumberOfFiles}`), 4000, "18.118.150.53"
         );
 
         this.helloInterval = setInterval(()=>{
@@ -36,6 +41,7 @@ export class PeerUDP{
             );
         },1000)
     }
+
 
     async fetchpeer(peername){
         const r = await fetch(`http://18.118.150.53:3000/peer/${peername}`);
@@ -113,12 +119,7 @@ export class PeerUDP{
         if(cmd === "PUNCH_ACK" && !this.punched){
             this.punched = true;
             console.log("UDP HOLE OPEN");
-            this.socket.send(Buffer.from('UDP-HOLE-OPEN'), this.peerUDPPort, this.peerIp);
             emmiter.emit('hole-open');
-        }
-
-        if(cmd === "UDP-HOLE-OPEN"){
-            emmiter.emit("hole-open");
         }
         
         if(cmd === "MESSAGE"){

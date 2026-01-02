@@ -31,14 +31,16 @@ async function RegisterUser(){
     peer.startHello();
 }
 
+await RegisterUser();
+
 
 async function Header(){
-    await RegisterUser();
+   // await RegisterUser();
     const users_online = await getUsersOnline();
     const number_users_online = users_online.online_lenght;
 
     console.log(`${colors.cyan}┌───────────────────────────────────────────────────────────┐${colors.reset}`);
-    console.log(`${colors.cyan}│${colors.reset}  VIA MUSIC P2P - [ Peers: ${number_users_online} ] [ Status: ONLINE ]          ${colors.cyan}│${colors.reset}`);
+    console.log(`${colors.cyan}│${colors.reset}  VIA MUSIC P2P - [ Peers: ${number_users_online} ] [ Status: ${colors.green}ONLINE ${colors.reset}]          ${colors.cyan}│${colors.reset}`);
     console.log(`${colors.cyan}├───────┬───────────────────────────────────────────────────┤${colors.reset}`);
 
     for(let i=0; i<number_users_online;i++){
@@ -63,24 +65,32 @@ async function Bottom(){
 async function HandleOptions(option){
     if(option == 1){
         const username = await rl.question("Insert username: ");
-      //  const peer_data = await peer.fetchpeer(username);
 
-      console.log(`${colors.cyan}1${colors.reset}-Chat`);
-      console.log(`${colors.cyan}1${colors.reset}-List files`);
+        console.log(`${colors.cyan}1${colors.reset}-Chat`);
+        console.log(`${colors.cyan}1${colors.reset}-List files`);
 
 
-      const answer = await rl.question("> ");
-        emmiter.once('hole-open', async()=>{
-            if(answer==1){
-                while(true){
-                    const message =  await rl.question("You: ");
-                    peer.SendMessage(message);
-                }
-            }  
-        })
+        const answer = await rl.question("> ");
+         emmiter.once('hole-open', async()=>{
+                if(answer==1){
+                    while(true){
+                        const message =  await rl.question("You: ");
+                        if(message === "/exit"){
+                            Header();
+                            return;
+                        } 
+                     peer.SendMessage(message);
+                    }
+                }  
+         })
 
-        await peer.fetchpeer(username)
+         await peer.fetchpeer(username)
       
+    }
+
+    if(option == 2){
+        console.clear();
+        Header();
     }
 }
 
