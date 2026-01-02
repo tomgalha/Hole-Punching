@@ -3,11 +3,7 @@ import fs from 'fs';
 import EventEmitter from "node:events";
 
 export const emmiter = new EventEmitter();
-import * as readline from "node:readline/promises";
-import {stdin as input,stdout as output} from "node:process";
 
-
-const rl = readline.createInterface({input,output});
 
 export class PeerUDP{
     constructor(nombreUser){
@@ -144,7 +140,7 @@ export class PeerUDP{
         }
 
         if(cmd === "LIST-FILES"){
-            fs.readdir(shared_folder, (err, files)=>{
+            fs.readdir(this.shared_folder, (err, files)=>{
                 if(err) {
                     console.log(err);
                     return

@@ -67,37 +67,38 @@ async function Bottom(){
     HandleOptions(answer);
 }
 
-emmiter.on('hole-open', async () => {
-    console.log("\nChat iniciado (/exit para volver)\n");
-
-    while (true) {
-        const message = await rl.question("You: ");
-
-        if (message === "/exit") {
-            console.clear();
-            await Header();
-            break;
-        }
-
-        peer.SendMessage(message);
-    }
-});
-
-
 async function HandleOptions(option){
     if(option == 1){
         const username = await rl.question("Insert username: ");
-        await peer.fetchpeer(username);
+
+        console.log(`${colors.cyan}1${colors.reset}-Chat`);
+        console.log(`${colors.cyan}1${colors.reset}-List files`);
+
+
+        const answer = await rl.question("> ");
+        emmiter.once('hole-open', async()=>{
+        if(answer == 1){
+            const username = await rl.question("Insert username: ");
+            await peer.fetchpeer(username);
+        }else if(answer == 2){
+            peer.ListFiles();
+        }
+
+
+        })
+
+         await peer.fetchpeer(username)
+      
     }
 
     if(option == 2){
         console.clear();
         Header();
     }
+
+    if(option == 5){
+        process.exit();
+    }
 }
-      
-    
-
-
 
 Header();
