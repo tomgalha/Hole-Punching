@@ -65,6 +65,10 @@ async function HandleOptions(option){
         const username = await rl.question("Insert username: ");
       //  const peer_data = await peer.fetchpeer(username);
 
+      console.log(`${colors.cyan}1${colors.reset}-Chat`);
+      console.log(`${colors.cyan}1${colors.reset}-List files`);
+
+
       const answer = await rl.question("> ");
         emmiter.once('hole-open', async()=>{
             if(answer==1){
@@ -76,12 +80,6 @@ async function HandleOptions(option){
         })
 
         await peer.fetchpeer(username)
-
-      console.log(`${colors.cyan}1${colors.reset}-Chat`);
-      console.log(`${colors.cyan}1${colors.reset}-List files`);
-
-
-      
       
     }
 }

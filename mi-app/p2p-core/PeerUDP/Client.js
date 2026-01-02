@@ -113,7 +113,12 @@ export class PeerUDP{
         if(cmd === "PUNCH_ACK" && !this.punched){
             this.punched = true;
             console.log("UDP HOLE OPEN");
+            this.socket.send(Buffer.from('UDP-HOLE-OPEN'), this.peerUDPPort, this.peerIp);
             emmiter.emit('hole-open');
+        }
+
+        if(cmd === "UDP-HOLE-OPEN"){
+            emmiter.emit("hole-open");
         }
         
         if(cmd === "MESSAGE"){
