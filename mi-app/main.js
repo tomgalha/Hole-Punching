@@ -23,17 +23,15 @@ async function getUsersOnline(){
     }
 }
 
-function RegisterUser(){
-    peer = new PeerUDP("tom");
+async function RegisterUser(){
+    const username = await rl.question("Insert username: ");
+    peer = new PeerUDP(username);
     peer.startHello();
-
-    const peer2 = new PeerUDP("mili");
-    peer2.startHello();
 }
 
 
 async function Header(){
-    RegisterUser();
+    await RegisterUser();
     const users_online = await getUsersOnline();
     const number_users_online = users_online.online_lenght;
 
