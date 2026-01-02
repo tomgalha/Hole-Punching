@@ -4,6 +4,11 @@ import EventEmitter from "node:events";
 
 export const emmiter = new EventEmitter();
 
+import {stdin as input,stdout as output} from "node:process";
+
+
+const rl = readline.createInterface({input,output});
+
 export class PeerUDP{
     constructor(nombreUser){
         this.nombreUser = nombreUser;
