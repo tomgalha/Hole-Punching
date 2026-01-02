@@ -63,7 +63,7 @@ async function Bottom(){
 async function HandleOptions(option){
     if(option == 1){
         const username = await rl.question("Insert username: ");
-        const peer_data = await peer.fetchpeer(username);
+      //  const peer_data = await peer.fetchpeer(username);
 
         emmiter.once('hole-open', async()=>{
             console.log("evento registrado");
