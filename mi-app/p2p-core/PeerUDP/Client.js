@@ -135,11 +135,8 @@ export class PeerUDP{
             emmiter.emit('hole-open');
         }
 
-        if(cmd === "HOLE-OPEN"){
-            while(true){
-                const message =  await rl.question("You (PEER): ");
-                this.SendMessage(message);
-            }
+        if(cmd === "HOLE-OPEN"){ // algo aca
+            emmiter.emit('hole-open')
         }
         
         if(cmd === "MESSAGE"){
