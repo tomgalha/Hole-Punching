@@ -29,7 +29,8 @@ export class PeerUDP{
     }
 
     NumberOfFiles(){
-        if(this.FolderExists(this.shared_folder)){
+        if(this.shared_folder === "") return 0;
+        else if(this.FolderExists(this.shared_folder)){
             const fileNumber = fs.readdirSync(this.shared_folder).length;
             return fileNumber;
         }
