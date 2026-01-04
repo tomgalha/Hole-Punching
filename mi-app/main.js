@@ -50,6 +50,7 @@ export async function HandleOptions(option){
              // Un await quizas;
              // peer.ListFiles();
              emmiter.once('list-ready', ()=>{
+               console.log("lista emitida.");
                Main();
              })
              peer.ListFiles();
