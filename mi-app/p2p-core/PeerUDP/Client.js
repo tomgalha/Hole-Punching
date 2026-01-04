@@ -167,7 +167,7 @@ export class PeerUDP{
                 })
             }
           emmiter.emit("list-ready");
-          console.log("EMITI LA LISTA(SOY EL CLIENT");
+          console.log("EMITI LA LISTA(SOY EL CLIENT)"); // Se emite (?)
         }
 
         if(cmd.startsWith("FILE")){
