@@ -93,9 +93,13 @@ export class PeerUDP{
     }
 
     // Setter
+    // Deberia actualizar el server con la nueva carpeta tambien
     SetFolder(folder_path){
         if(this.FolderExists(folder_path)){
           this.shared_folder = folder_path;
+          // Enviar al server el cambio de carpeta
+          this.socket.send(Buffer.from(`CHANGE_FOLDER ${this.nombreUser} ${this.NumberOfFiles()}`), 4000, "18.118.150.53");
+          // Maybe un ACK;
           return true;
         }
         return false;

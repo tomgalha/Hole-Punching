@@ -74,6 +74,10 @@ udp.on("message", (msg, rinfo) => {
       user.lastSeen = Date.now();
     }
   }
+  if(cmd === "CHANGE_FOLDER"){
+    const [userName, newSize] = text.split(" ");
+    onlineUsers.get(userName).number_of_files = newSize;
+  }
 });
 
 // limpieza
