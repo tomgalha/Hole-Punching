@@ -76,6 +76,7 @@ udp.on("message", (msg, rinfo) => {
   }
   if(cmd === "CHANGE_FOLDER"){
     const [userName, newSize] = text.split(" ");
+    console.log(userName);
     onlineUsers.get(userName).number_of_files = newSize;
   }
 });
