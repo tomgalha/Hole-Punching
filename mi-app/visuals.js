@@ -48,7 +48,7 @@ export async function AskUsername(){
 
 export async function OptionsUsername(){
   console.log(`${colors.cyan}1${colors.reset}-Chat`);
-  console.log(`${colors.cyan}1${colors.reset}-List files`);
+  console.log(`${colors.cyan}2${colors.reset}-List files`);
   
   const answer = await rl.question("> ");
   return answer;
