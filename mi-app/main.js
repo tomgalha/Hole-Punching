@@ -35,10 +35,6 @@ export async function HandleOptions(option){
         const username = await AskUsername();
         const answer = await OptionsUsername();
         
-        emmiter.once('list-ready', ()=>{
-          console.log("lista emitida.")
-          Main();
-        });
         emmiter.once('hole-open', async()=>{
           if(answer == 1){
             while(true){
@@ -51,10 +47,12 @@ export async function HandleOptions(option){
               peer.SendMessage(message);
            }
           }else if(answer == 2){
-             // Un await quizas;
-             // peer.ListFiles();
-             peer.ListFiles();
-              // Actualmente, luego van a tner que estar un handle 
+             emmiter.once('list-ready', ()=>{
+              Main();
+             });
+
+             const files = await peer.ListFiles();
+             // Main();
           }
         })
         await peer.fetchpeer(username)

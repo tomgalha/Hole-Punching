@@ -166,12 +166,17 @@ export class PeerUDP{
                     }
                 })
             }
-          emmiter.emit("list-ready");
+          // emmiter.emit("list-ready");
+          this.socket.send(Buffer.from("LIST-READY"), this.peerUDPPort, this.peerIp);
           console.log("EMITI LA LISTA(SOY EL CLIENT)"); // Se emite (?)
         }
 
         if(cmd.startsWith("FILE")){
             console.log(data);
+        }
+
+        if(cmd === "LIST-READY"){
+          emmiter.emit("list-ready");
         }
     }
 
