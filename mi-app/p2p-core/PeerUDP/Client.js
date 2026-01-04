@@ -1,6 +1,6 @@
-import dgram from "dgram";
+import dgram from 'dgram';
 import fs from 'fs';
-import EventEmitter from "node:events";
+import EventEmitter from 'node:events';
 
 export const emmiter = new EventEmitter();
 
@@ -9,7 +9,7 @@ export class PeerUDP{
     constructor(nombreUser){
         this.nombreUser = nombreUser;
 
-        this.shared_folder = "";
+        this.shared_folder = '';
 
         this.peerIp = null;
         this.peerUDPPort = null;
@@ -17,12 +17,12 @@ export class PeerUDP{
         this.punched = false;
         this.punchAttempts = 0;
         
-        this.socket = dgram.createSocket("udp4");
+        this.socket = dgram.createSocket('udp4');
         this.socket.bind(0, ()=>{
             console.log(`UDP puerto: ${this.socket.address().port}`);
-        })
+        });
 
-        this.socket.on("message", this.HandleMessages.bind(this));
+        this.socket.on('message', this.HandleMessages.bind(this));
     }
 
     FolderExists(folderpath){
@@ -30,7 +30,7 @@ export class PeerUDP{
     }
 
     NumberOfFiles(){
-        if(this.shared_folder === "") return 0;
+        if(this.shared_folder === '') return 0;
         else if(this.FolderExists(this.shared_folder)){
             const fileNumber = fs.readdirSync(this.shared_folder).length;
             return fileNumber;
@@ -38,16 +38,16 @@ export class PeerUDP{
     }
 
     startHello(){
-        console.log("Starting hello..");
+        console.log('Starting hello..');
         this.socket.send(
-            Buffer.from(`HELLO ${this.nombreUser} ${this.NumberOfFiles()}`), 4000, "18.118.150.53"
+            Buffer.from(`HELLO ${this.nombreUser} ${this.NumberOfFiles()}`), 4000, '18.118.150.53'
         );
 
         this.helloInterval = setInterval(()=>{
             this.socket.send(
-                Buffer.from(`PING ${this.nombreUser}`),4000,"18.118.150.53"
+                Buffer.from(`PING ${this.nombreUser}`),4000,'18.118.150.53'
             );
-        },1000)
+        },1000);
     }
 
 
@@ -64,7 +64,7 @@ export class PeerUDP{
         // Aca le comunico al server que quiero los datos de el otro usuario
         // Cuando el server recibe ambos mensajes, envia un mensaje a los usuarios diciendo que arranquen
 
-        this.socket.send(Buffer.from(`REQUEST ${peername} ${this.nombreUser}`), 4000, "18.118.150.53");
+        this.socket.send(Buffer.from(`REQUEST ${peername} ${this.nombreUser}`), 4000, '18.118.150.53');
     }
 
     startPunch(){
@@ -79,17 +79,17 @@ export class PeerUDP{
                 return;
             }
             this.socket.send(
-                Buffer.from("PUNCH"),
+                Buffer.from('PUNCH'),
                 this.peerUDPPort,
                 this.peerIp,
                 (err)=>{
-                    if(err) console.log("Error enviando punch",err)
+                    if(err) console.log('Error enviando punch',err);
                 }
             );
 
             console.log(`Disparando PUNCH a ${this.peerIp}:${this.peerUDPPort} (Intento ${this.punchAttempts})`);
             this.punchAttempts++;
-        },800)
+        },800);
     }
 
     // Setter
@@ -107,7 +107,7 @@ export class PeerUDP{
      }
      
     NotifyFolderServer(){
-      this.socket.send(Buffer.from(`CHANGE_FOLDER ${this.nombreUser} ${this.NumberOfFiles()}`), 4000, "18.118.150.53");
+      this.socket.send(Buffer.from(`CHANGE_FOLDER ${this.nombreUser} ${this.NumberOfFiles()}`), 4000, '18.118.150.53');
     }
 
     //Getter
@@ -117,16 +117,16 @@ export class PeerUDP{
 
     async HandleMessages(msg,rinfo){
         const text = msg.toString();
-        const parts = text.split(" ");
+        const parts = text.split(' ');
         const cmd = parts[0];
-        const data = parts.slice(1).join(" ");
+        const data = parts.slice(1).join(' ');
 
-        if(cmd === "REQUEST_ACK"){
+        if(cmd === 'REQUEST_ACK'){
             this.startPunch();
         }
 
-        if(cmd === "START_PUNCH_WITH"){
-            const [_,name,port,ip] = text.split(" ");
+        if(cmd === 'START_PUNCH_WITH'){
+            const [_,name,port,ip] = text.split(' ');
             this.peerUDPPort=port;
             this.peerIp=ip;
             
@@ -134,49 +134,49 @@ export class PeerUDP{
             this.startPunch();
         }
 
-        if(cmd === "PUNCH"){
-            this.socket.send("PUNCH_ACK", rinfo.port, rinfo.address);
+        if(cmd === 'PUNCH'){
+            this.socket.send('PUNCH_ACK', rinfo.port, rinfo.address);
         }
 
-        if(cmd === "PUNCH_ACK" && !this.punched){
+        if(cmd ==='PUNCH_ACK' && !this.punched){
             this.punched = true;
-            console.log("UDP HOLE OPEN");
+            console.log('UDP HOLE OPEN');
             this.socket.send('HOLE-OPEN', this.peerUDPPort, this.peerIp);
             emmiter.emit('hole-open');
         }
 
-        if(cmd === "HOLE-OPEN"){ // algo aca
-            emmiter.emit('hole-open')
+        if(cmd === 'HOLE-OPEN'){ // algo aca
+            emmiter.emit('hole-open');
         }
         
-        if(cmd === "MESSAGE"){
+        if(cmd === 'MESSAGE'){
             console.log(`Other: ${data}`);
         }
 
-        if(cmd === "LIST-FILES"){
+        if(cmd === 'LIST-FILES'){
             if(this.NumberOfFiles()!==0){
                 fs.readdir(this.shared_folder, (err, files)=>{
                     if(err) {
                         console.log(err);
-                        return
+                        return;
                     }
 
                     for(const file of files){
                         this.socket.send(Buffer.from(`FILE ${file}`), this.peerUDPPort, this.peerIp);
                     }
-                })
+                });
             }
           // emmiter.emit("list-ready");
-          this.socket.send(Buffer.from("LIST-READY"), this.peerUDPPort, this.peerIp);
-          console.log("EMITI LA LISTA(SOY EL CLIENT)"); // Se emite (?)
+          this.socket.send(Buffer.from('LIST-READY'), this.peerUDPPort, this.peerIp);
+          console.log('EMITI LA LISTA(SOY EL CLIENT)'); // Se emite (?)
         }
 
-        if(cmd.startsWith("FILE")){
+        if(cmd.startsWith('FILE')){
             console.log(data);
         }
 
-        if(cmd === "LIST-READY"){
-          emmiter.emit("list-ready");
+        if(cmd === 'LIST-READY'){
+          emmiter.emit('list-ready');
         }
     }
 
@@ -185,6 +185,6 @@ export class PeerUDP{
     }
 
     ListFiles(){
-        this.socket.send(Buffer.from("LIST-FILES"), this.peerUDPPort,this.peerIp);
+        this.socket.send(Buffer.from('LIST-FILES'), this.peerUDPPort,this.peerIp);
     }
 }

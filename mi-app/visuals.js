@@ -1,6 +1,6 @@
-import {HandleOptions} from "./main.js";
-import * as readline from "node:readline/promises";
-import {stdin as input,stdout as output} from "node:process";
+import {HandleOptions} from './main.js';
+import * as readline from 'node:readline/promises';
+import {stdin as input,stdout as output} from 'node:process';
 const rl = readline.createInterface({input,output});
 
 export const colors = {
@@ -31,35 +31,35 @@ async function Bottom(){
     console.log(`${colors.cyan}│${colors.reset} [1] Search user  [2] Refresh  [3] Set folder  [5] Exit    ${colors.cyan}│${colors.reset}`);
     console.log(`${colors.cyan}└───────────────────────────────────────────────────────────┘${colors.reset}`);
 
-    const answer = await rl.question("> ");
+    const answer = await rl.question('> ');
     HandleOptions(answer);
 }
 
 export async function GetUsername(){
-  const username = await rl.question("Insert username: ");
+  const username = await rl.question('Insert username: ');
   return username;
 }
 
 
 export async function AskUsername(){
-  const username = await rl.question("Insert username: ");
+  const username = await rl.question('Insert username: ');
   return username;
 }
 
 export async function OptionsUsername(){
   console.log(`${colors.cyan}1${colors.reset}-Chat`);
-  console.log(`${colors.cyan}2${colors.reset}-List files`);
+  console.log(`${colors.cyan}1${colors.reset}-List files`);
   
-  const answer = await rl.question("> ");
+  const answer = await rl.question('> ');
   return answer;
 }
 
 export async function HandleMessage(){
-  const message = await rl.question("You: ");
+  const message = await rl.question('You: ');
   return message;
 }
 
 export async function RequestFolderPath(){
-  const folderpath = await rl.question("Write the folder path: ");
+  const folderpath = await rl.question('Write the folder path: ');
   return folderpath;
 }

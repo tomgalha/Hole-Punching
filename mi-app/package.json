@@ -17,6 +17,7 @@
   },
   "devDependencies": {
     "autoprefixer": "^10.4.23",
-    "electron": "^39.2.7"
+    "electron": "^39.2.7",
+    "eslint": "^9.39.2"
   }
 }
