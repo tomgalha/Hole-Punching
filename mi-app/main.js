@@ -36,30 +36,27 @@ export async function HandleOptions(option){
         const answer = await OptionsUsername();
         
         emmiter.once('hole-open', async()=>{
-        if(answer == 1){
-          while(true){
-            const message = await HandleMessage();
-
-            if(message === "/exit"){
-              Main();
-              return
-            }
-            peer.SendMessage(message);
+          if(answer == 1){
+            while(true){
+              const message = await HandleMessage();
+  
+             if(message === "/exit"){
+               Main();
+               return
+             }
+              peer.SendMessage(message);
+           }
+          }else if(answer == 2){
+             // Un await quizas;
+             // peer.ListFiles();
+             emmiter.once('list-ready', ()=>{
+               Main();
+             })
+             peer.ListFiles();
+              // Actualmente, luego van a tner que estar un handle 
           }
-        }else if(answer == 2){
-            // Un await quizas;
-            peer.ListFiles();
-            emmiter.once('list-ready', ()=>{
-              Main();
-            })
-            // Actualmente, luego van a tner que estar un handle 
-
-        }
-
         })
-
-         await peer.fetchpeer(username)
-      
+        await peer.fetchpeer(username)
     }
     if(option == 2){
         console.clear();
