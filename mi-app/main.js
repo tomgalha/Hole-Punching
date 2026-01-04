@@ -1,22 +1,9 @@
 import { PeerUDP } from "./p2p-core/PeerUDP/Client.js";
-import * as readline from "node:readline/promises";
-import {stdin as input,stdout as output} from "node:process";
-
 import {emmiter} from "./p2p-core/PeerUDP/Client.js";
-
-const rl = readline.createInterface({input,output});
-
 import os from 'os';
+import {Header,colors, GetUsername, AskUsername, OptionsUsername, HandleMessage, RequestFolderPath} from "./visuals.js";
 
 let peer = null;
-
-const colors = {
-    cyan: '\x1b[36m',
-    green: '\x1b[32m',
-    reset: '\x1b[0m',
-    dim: '\x1b[2m'
-};
-
 
 async function getUsersOnline(){
     const data = await fetch("http://18.118.150.53:3000/usersConnected");
@@ -28,79 +15,57 @@ async function getUsersOnline(){
 }
 
 async function RegisterUser(){
-    const username = await rl.question("Insert username: ");
+    const username = await GetUsername();
+    // const username = await rl.question("Insert username: ");
     peer = new PeerUDP(username);
     peer.SetFolder(`C:/Users/${os.userInfo().username}/Music/Music/Dad's rock`);
-//    console.log(peer.NumberOfFiles());
     peer.startHello();
 }
 
 await RegisterUser();
 
-
-async function Header(){
-   // await RegisterUser();
-    const users_online = await getUsersOnline();
-    const number_users_online = users_online.online_lenght;
-
-    console.log(`${colors.cyan}┌───────────────────────────────────────────────────────────┐${colors.reset}`);
-    console.log(`${colors.cyan}│${colors.reset}  VIA MUSIC P2P - [ Peers: ${number_users_online} ] [ Status: ${colors.green}ONLINE ${colors.reset}]          ${colors.cyan}│${colors.reset}`);
-    console.log(`${colors.cyan}├───────┬───────────────────────────────────────────────────┤${colors.reset}`);
-
-    for(let i=0; i<number_users_online;i++){
-        const nombreRaw= users_online.users[i][0];
-        const n_files = users_online.users[i][1].number_of_files;
-        const nombreFijo = nombreRaw.padEnd(5);
-        console.log(`${colors.cyan}│${colors.reset} ${nombreFijo} ${colors.cyan}│${colors.reset}  Files shared: ${n_files}`);
-    }
-
-    Bottom();
+async function Main(){
+  const usersOnline = await getUsersOnline();
+  const number_users_online = usersOnline.online_lenght;
+  Header(usersOnline, number_users_online);
 }
 
-
-async function Bottom(){
-    console.log(`${colors.cyan}├───────┴───────────────────────────────────────────────────┤${colors.reset}`);
-    console.log(`${colors.cyan}│${colors.reset} [1] Search user  [2] Refresh  [3] Set folder  [5] Exit    ${colors.cyan}│${colors.reset}`);
-    console.log(`${colors.cyan}└───────────────────────────────────────────────────────────┘${colors.reset}`);
-
-    const answer = await rl.question("> ");
-    HandleOptions(answer);
-}
-
-async function HandleOptions(option){
+export async function HandleOptions(option){
     if(option == 1){
-        const username = await rl.question("Insert username: ");
-
-        console.log(`${colors.cyan}1${colors.reset}-Chat`);
-        console.log(`${colors.cyan}1${colors.reset}-List files`);
-
-
-        const answer = await rl.question("> ");
+        const username = await AskUsername();
+        const answer = await OptionsUsername();
+        
         emmiter.once('hole-open', async()=>{
         if(answer == 1){
-            const username = await rl.question("Insert username: ");
-            await peer.fetchpeer(username);
+          while(true){
+            const message = await HandleMessage();
+
+            if(message === "/exit"){
+              Header();
+              return
+            }
+            peer.SendMessage(message);
+          }
         }else if(answer == 2){
             peer.ListFiles();
         }
-
 
         })
 
          await peer.fetchpeer(username)
       
     }
-
     if(option == 2){
         console.clear();
         Header();
     }
-
     if(option == 3){
         console.log(`Current folder: ${peer.ReturnFolder()}`);
-        const folderpath = await rl.question("Write the folder path: ");
-        peer.SetFolder(folderpath);
-        console.log(`Folder updated to: ${peer.ReturnFolder()}`); // FIJARSE PORQUE NO ACTUALIZA EL SERVER ENTONCES EL NUM DE ARCHIVOS SIGUE IGUAL
+        const folder_path = await RequestFolderPath();
+
+        const setFolder = peer.SetFolder(folder_path);
+        if(setFolder) console.log(`Folder updated to: ${peer.ReturnFolder()}`);
+        else console.log("No existe esa carpeta!");
         Header();
     }
 
@@ -109,4 +74,4 @@ async function HandleOptions(option){
     }
 }
 
-Header();
+Main();

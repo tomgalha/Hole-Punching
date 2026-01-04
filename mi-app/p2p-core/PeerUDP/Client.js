@@ -94,8 +94,13 @@ export class PeerUDP{
 
     // Setter
     SetFolder(folder_path){
-        if(this.FolderExists(folder_path)) this.shared_folder = folder_path; 
-    }
+        if(this.FolderExists(folder_path)){
+          this.shared_folder = folder_path;
+          return true;
+        }
+        return false;
+     }
+
     //Getter
     ReturnFolder(){
         return this.shared_folder;
