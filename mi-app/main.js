@@ -41,7 +41,7 @@ export async function HandleOptions(option){
             const message = await HandleMessage();
 
             if(message === "/exit"){
-              Header();
+              Main();
               return
             }
             peer.SendMessage(message);
@@ -57,7 +57,7 @@ export async function HandleOptions(option){
     }
     if(option == 2){
         console.clear();
-        Header();
+        Main();
     }
     if(option == 3){
         console.log(`Current folder: ${peer.ReturnFolder()}`);
@@ -70,7 +70,7 @@ export async function HandleOptions(option){
         }else{
           console.log("No existe esa carpeta!")
         };
-        Header();
+        Main();
     }
 
     if(option == 5){

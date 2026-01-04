@@ -33,13 +33,12 @@ app.get('/usersConnected', (req, res) => {
 // UDP
 udp.on("message", (msg, rinfo) => {
   const text = msg.toString();
-  console.log(`El texto es: ${text}`);
   const [cmd, targetUser, senderUser] = text.split(" ");
 
   // SOLO presencia
   if (cmd === "HELLO" && targetUser) {
     const n_of_files = text.split(" ")[2]; 
-    console.lo
+
     onlineUsers.set(targetUser, {
       ip: rinfo.address,
       udp_port: rinfo.port,
