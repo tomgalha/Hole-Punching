@@ -32,8 +32,8 @@ app.get('/usersConnected', (req, res) => {
 
 // UDP
 udp.on("message", (msg, rinfo) => {
-
   const text = msg.toString();
+  console.log(`El texto es: ${text}`);
   const [cmd, targetUser, senderUser] = text.split(" ");
 
   // SOLO presencia
