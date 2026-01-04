@@ -63,9 +63,13 @@ export async function HandleOptions(option){
         console.log(`Current folder: ${peer.ReturnFolder()}`);
         const folder_path = await RequestFolderPath();
         const setFolder = peer.SetFolder(folder_path);
-      
-        if(setFolder) console.log(`Folder updated to: ${peer.ReturnFolder()}`);
-        else console.log("No existe esa carpeta!");
+
+        if(setFolder){
+          console.log(`Folder updated to: ${peer.ReturnFolder()}`)
+          peer.NotifyFolderServer();
+        }else{
+          console.log("No existe esa carpeta!")
+        };
         Header();
     }
 
