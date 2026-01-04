@@ -48,6 +48,8 @@ export async function HandleOptions(option){
           }
         }else if(answer == 2){
             peer.ListFiles();
+            // Actualmente, luego van a tner que estar un handle 
+            Main();
         }
 
         })
