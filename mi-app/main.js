@@ -47,9 +47,13 @@ export async function HandleOptions(option){
             peer.SendMessage(message);
           }
         }else if(answer == 2){
+            // Un await quizas;
             peer.ListFiles();
+            emmiter.once('list-ready', ()=>{
+              Main();
+            })
             // Actualmente, luego van a tner que estar un handle 
-            Main();
+
         }
 
         })

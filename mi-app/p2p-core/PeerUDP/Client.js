@@ -166,6 +166,7 @@ export class PeerUDP{
                     }
                 })
             }
+          emmiter.emit("list-ready");
         }
 
         if(cmd.startsWith("FILE")){
