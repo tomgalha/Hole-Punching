@@ -1,7 +1,7 @@
 import { PeerUDP } from './p2p-core/PeerUDP/Client.js';
 import {emmiter} from './p2p-core/PeerUDP/Client.js';
 import os from 'os';
-import {Header,colors, GetUsername, AskUsername, OptionsUsername, HandleMessage, RequestFolderPath} from './visuals.js';
+import {Header,colors, GetUsername, AskUsername, OptionsUsername, HandleMessage, RequestFolderPath, TwoOptions} from './visuals.js';
 
 let peer = null;
 
@@ -31,51 +31,52 @@ async function Main(){
 };
 
 export async function HandleOptions(option){
-    if(option == 1){
-        const username = await AskUsername();
-        const answer = await OptionsUsername();
-        
-        emmiter.once('list-ready', ()=>{
-          Main();
-        });
-        emmiter.once('hole-open', async()=>{
-          if(answer == 1){
-            while(true){
-              const message = await HandleMessage();
-  
-             if(message === '/exit'){
-               Main();
-               return;
-             };
-              peer.SendMessage(message);
-           };
-          }else if(answer == 2){
-             const files = await peer.ListFiles();
-             // Main();
-          };
-        });
-        await peer.fetchpeer(username);
-    };
+    if(option == 1) HandleOption1();
     if(option == 2){
         console.clear();
         Main();
     };
-    if(option == 3){
-        console.log(`Current folder: ${peer.ReturnFolder()}`);
-        const folder_path = await RequestFolderPath();
-        const setFolder = peer.SetFolder(folder_path);
-
-        if(setFolder){
-          console.log(`Folder updated to: ${peer.ReturnFolder()}`);
-          peer.NotifyFolderServer();
-        }else{
-          console.log('No existe esa carpeta!');
-        };
-        Main();
-    };
-
+    if(option == 3) HandleOption3();
     if(option == 5){
         process.exit();
     };
 };
+
+async function HandleOption1(){
+    const username = await AskUsername();
+    const answer = await OptionsUsername();
+        
+    emmiter.once('hole-open', async()=>{
+      if(answer == 1){
+        while(true){
+          const message = await HandleMessage();
+  
+          if(message === '/exit'){
+            Main();
+            return;
+          };
+           peer.SendMessage(message);
+        };
+       }else if(answer == 2){
+          const files = await peer.ListFiles();
+          const decision = await TwoOptions('1-Download file: ', '2-Download folder: ');   
+        };
+    });
+    await peer.fetchpeer(username);
+}
+
+async function HandleOption3(){
+    console.log(`Current folder: ${peer.ReturnFolder()}`);
+    const folder_path = await RequestFolderPath();
+    const setFolder = peer.SetFolder(folder_path);
+    
+    if(setFolder){
+       console.log(`Folder updated to: ${peer.ReturnFolder()}`);
+       peer.NotifyFolderServer();
+    }else{
+       console.log('No existe esa carpeta!');
+    };
+    Main();
+}
+
 Main();

@@ -48,7 +48,7 @@ export async function AskUsername(){
 
 export async function OptionsUsername(){
   console.log(`${colors.cyan}1${colors.reset}-Chat`);
-  console.log(`${colors.cyan}1${colors.reset}-List files`);
+  console.log(`${colors.cyan}2${colors.reset}-List files`);
   
   const answer = await rl.question('> ');
   return answer;
@@ -63,3 +63,12 @@ export async function RequestFolderPath(){
   const folderpath = await rl.question('Write the folder path: ');
   return folderpath;
 }
+
+export async function TwoOptions(option1, option2){
+  console.log(option1);
+  console.log(option2);
+
+  const answer = await rl.question('> ');
+  return answer;
+}
+
